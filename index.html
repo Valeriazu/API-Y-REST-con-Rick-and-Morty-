@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title> API REST: Rick and Morty </title>
+        <link rel="stylesheet" href="index.css">
+        <script src="app.js" defer></script>
+         <style>
+    .card {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 10px;
+      display: inline-block;
+      text-align: center;
+      width: 150px;
+    }
+    .card img {
+      width: 100%;
+      border-radius: 8px;
+    }
+  </style>
+        </head>
+        <body>
+            <h1> Rick and Morty </h1>
+          <button id="btn-lista">Lista de personajes</button>
+          <button id="btn-especies">Agrupar por especie</button>
+          <button id="btn-individual">Ficha individual</button>
+
+            <div id ='contenedor'></div>
+
+
+            <script>
+     let personajesCache = null;
+      async function obtenerPersonajes() {
+        if (!personajesCache) {
+          const response = await fetch('https://rickandmortyapi.com/api/character/1,2,3,4,5,6,7,8,9,10');
+          personajesCache = await response.json();
+        }
+        return personajesCache;
+          }
+
+      document.getElementById('btn-lista').addEventListener('click', async () => {
+        const data = await obtenerPersonajes();
+        const contenedor = document.getElementById('contenedor');
+        contenedor.innerHTML = "<h2>Lista de personajes</h2>";
+        data.forEach(usuario => {
+          contenedor.innerHTML += `<p>ID: ${usuario.id} - Nombre: ${usuario.name} - Especie: ${usuario.species}</p>`;
+      });
+    });
+  
+      document.getElementById('btn-especies').addEventListener('click', async () => {
+        const data = await obtenerPersonajes();
+        const contenedor = document.getElementById('contenedor');
+        contenedor.innerHTML = "<h2>Agrupación por especie</h2>";
+        const especies = {};
+
+        data.forEach(usuario => {
+          if (!especies[usuario.species]) {
+            especies[usuario.species] = [];
+        }
+          especies[usuario.species].push(usuario);
+      });
+
+        for (const especie in especies) {
+          contenedor.innerHTML += `<h3>${especie}</h3>`;
+          especies[especie].forEach(usuario => {
+            contenedor.innerHTML += `<p>- ${usuario.name} (ID: ${usuario.id})</p>`;
+        });
+      }
+    });
+
+    
+      document.getElementById('btn-individual').addEventListener('click', async () => {
+        const data = await obtenerPersonajes();
+        const personaje = data[0]; 
+        const contenedor = document.getElementById('contenedor');
+        contenedor.innerHTML = `
+          <h2>Ficha de personaje</h2>
+          <p>ID: ${personaje.id}</p>
+          <p>Nombre: ${personaje.name}</p>
+          <p>Especie: ${personaje.species}</p>
+        <img src="${personaje.image}" alt="${personaje.name}">
+      `;
+    });
+            </script>
+            </body>
+            </html>
